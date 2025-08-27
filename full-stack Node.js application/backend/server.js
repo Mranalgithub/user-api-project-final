@@ -126,6 +126,11 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.send("✅ Backend API is live. Use /api/... routes.");
+});
+
+
 app.post('/api/auth/login', passport.authenticate('local'), (req, res) => {
   res.json({ message: 'Logged in', user: req.user });
 });
