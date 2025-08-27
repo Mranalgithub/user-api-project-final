@@ -1,55 +1,41 @@
+const BASE = import.meta.env.VITE_API_URL; // Example: https://user-api-project-final.onrender.com
 
-const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-
-function buildUrl(path) {
-  if (!path) return BASE;
-  return BASE + (path.startsWith('/') ? path : '/' + path);
-}
-
-async function req(path, opts = {}) {
-  const res = await fetch(buildUrl(path), {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-    ...opts
+// Generic request helper
+async function req(path, options = {}) {
+  const res = await fetch(`${BASE}/api${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    credentials: "include", // include cookies/session if used
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Request failed');
-  return data;
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Request failed");
+  }
+
+  return res.json().catch(() => ({}));
 }
 
-export const register = (payload) => req('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) });
-export const login = (payload) => req('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) });
-// keep other exports as-is by reusing remaining part of original file if present
-
-
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-
-async function req(path, opts = {}) {
-  const res = await fetch(BASE + path, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-    ...opts
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error || 'Request failed')
-  return data
+// API functions
+export function register(data) {
+  return req("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
-export const register = (payload) => req('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) })
-export const login = (payload) => req('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) })
-export const logout = () => req('/api/auth/logout', { method: 'POST', body: JSON.stringify({}) })
-export const me = () => req('/api/user', { method: 'GET', headers: {} })
-export const listFiles = () => req('/api/files', { method: 'GET' })
+export function login(data) {
+  return req("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
 
-export async function uploadFile(file) {
-  const formData = new FormData()
-  formData.append('file', file)
-  const res = await fetch(BASE + '/api/upload', {
-    method: 'POST',
-    body: formData,
-    credentials: 'include'
-  })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Upload failed')
-  return data
+export function getUser() {
+  return req("/user", {
+    method: "GET",
+  });
 }
