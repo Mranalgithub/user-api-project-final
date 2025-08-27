@@ -1,0 +1,1 @@
+web: cd fullstack-react-express/frontend/node_modules/queue-microtask && npm install && npm run start

@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "fullstack-react-express/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "fullstack-react-express/frontend/node_modules/queue-microtask/api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/fullstack-react-express/frontend/dist/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/fullstack-react-express/frontend/node_modules/queue-microtask/api/$1"
+    }
+  ]
+}
